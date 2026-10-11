@@ -1,10 +1,10 @@
+
 FROM python:3.12-slim
 
 WORKDIR /app
 
-# GCC is required because the Flask app compiles and runs analyzer.c.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc \
+    && apt-get install -y --no-install-recommends build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
