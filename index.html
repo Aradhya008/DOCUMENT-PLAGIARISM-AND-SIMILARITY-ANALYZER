@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document Similarity Analyzer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="container">
+    <header>
+      <div class="eyebrow">C PROGRAMMING PROJECT</div>
+      <h1>Document Similarity Analyzer</h1>
+      <p class="subtitle">Compare two text documents and estimate how much text they share.</p>
+    </header>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="alert" role="alert">
+          {% for message in messages %}<p>{{ message }}</p>{% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('analyze') }}" method="POST" enctype="multipart/form-data">
+      <div class="upload-grid">
+        <section class="upload-card">
+          <span class="step">DOCUMENT 01</span>
+          <label for="file1">First document</label>
+          <p class="hint">Choose the original/reference text file.</p>
+          <input id="file1" name="file1" type="file" accept=".txt,text/plain" required>
+        </section>
+        <section class="upload-card">
+          <span class="step">DOCUMENT 02</span>
+          <label for="file2">Second document</label>
+          <p class="hint">Choose the document you want to compare.</p>
+          <input id="file2" name="file2" type="file" accept=".txt,text/plain" required>
+        </section>
+      </div>
+      <button type="submit">Analyze documents <span aria-hidden="true">→</span></button>
+    </form>
+
+    {% if result %}
+      <section class="result" aria-live="polite">
+        <div class="result-heading">
+          <div>
+            <span class="step">ANALYSIS RESULT</span>
+            <h2>Estimated word overlap</h2>
+          </div>
+          <div class="percentage">{{ "%.2f"|format(result.percentage) }}%</div>
+        </div>
+        <div class="meter"><div class="meter-fill" style="width: {{ result.percentage }}%"></div></div>
+        <p>{{ result.matched }} matching word occurrence(s) counted against {{ result.total }} word(s) in Document 1.</p>
+        <div class="file-names">
+          <div><span>Document 1</span><strong>{{ result.file1 }}</strong></div>
+          <div><span>Document 2</span><strong>{{ result.file2 }}</strong></div>
+        </div>
+        <p class="disclaimer">This is a basic word-overlap estimate, not proof of plagiarism. It does not understand meaning, citations, paraphrasing, or authorship.</p>
+      </section>
+    {% endif %}
+
+    <footer>
+      <p>Supports plain-text <strong>.txt</strong> files up to 100 KB each.</p>
+      <p>Files are processed locally by this app and temporary uploads are removed after analysis.</p>
+    </footer>
+  </main>
+</body>
+</html>
