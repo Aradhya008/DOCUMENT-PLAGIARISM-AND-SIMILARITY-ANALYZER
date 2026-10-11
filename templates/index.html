@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Document Similarity Analyzer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="container">
+    <header>
+      <div class="eyebrow">C + Python + HTML/CSS</div>
+      <h1>Document Similarity Analyzer</h1>
+      <p>Paste two texts below. No file upload needed.</p>
+    </header>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="alert">{% for message in messages %}<p>{{ message }}</p>{% endfor %}</div>
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('analyze') }}" method="POST">
+      <div class="fields">
+        <section class="field">
+          <label for="text1">Document 1 — Original text</label>
+          <textarea id="text1" name="text1" maxlength="5000" placeholder="Paste the first document text here..." required>{{ request.form.get('text1', '') }}</textarea>
+          <small>Maximum 5,000 characters</small>
+        </section>
+        <section class="field">
+          <label for="text2">Document 2 — Text to compare</label>
+          <textarea id="text2" name="text2" maxlength="5000" placeholder="Paste the second document text here..." required>{{ request.form.get('text2', '') }}</textarea>
+          <small>Maximum 5,000 characters</small>
+        </section>
+      </div>
+      <button type="submit">Compare Documents</button>
+    </form>
+
+    {% if result %}
+      <section class="result" aria-live="polite">
+        <div class="result-label">Estimated word overlap</div>
+        <div class="percentage">{{ "%.2f"|format(result.percentage) }}%</div>
+        <p>{{ result.matched }} matching word occurrence(s) out of {{ result.total }} word(s) in Document 2.</p>
+        <div class="bar"><div style="width: {{ result.percentage }}%"></div></div>
+      </section>
+    {% endif %}
+    <p class="note"><strong>Note:</strong> This is a simple educational demo. It checks exact word matches only; it cannot reliably determine plagiarism, meaning, or paraphrased sentences. Matching is case-sensitive.</p>
+  </main>
+</body>
+</html>
