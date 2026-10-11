@@ -1,90 +1,59 @@
 #include <stdio.h>
 #include <string.h>
 
-/* Basic document word-overlap analyzer using beginner-level string.h functions.
-   Functions used: strlen(), strcpy(), strcmp(), strtok().
-   Usage: analyzer file1.txt file2.txt */
+int main(void)
+{
+    char doc1[5001], doc2[5001];
+    char words1[500][50], words2[500][50];
+    int count1 = 0, count2 = 0;
+    int i, j, k, found, matched = 0;
 
-int main(int argc, char *argv[]) {
-    FILE *f1, *f2;
-    char text1[10001], text2[10001];
-    char words1[1000][100];
-    char *word;
-    int total = 0, matched = 0;
-    int i, found;
-    size_t n1, n2;
+    /* Python sends each document as one line. */
+    if (fgets(doc1, sizeof(doc1), stdin) == NULL) return 1;
+    if (fgets(doc2, sizeof(doc2), stdin) == NULL) return 1;
 
-    if (argc != 3) {
-        printf("Usage: analyzer file1.txt file2.txt\n");
-        return 1;
+    /* Split document 1 into words using a simple loop. */
+    i = 0;
+    while (doc1[i] != '\0' && count1 < 500) {
+        while (doc1[i] == ' ' || doc1[i] == '\t' || doc1[i] == '\n' || doc1[i] == ',' || doc1[i] == '.' || doc1[i] == '!' || doc1[i] == '?' || doc1[i] == ';' || doc1[i] == ':') i++;
+        if (doc1[i] == '\0') break;
+        j = 0;
+        while (doc1[i] != '\0' && doc1[i] != ' ' && doc1[i] != '\t' && doc1[i] != '\n' && doc1[i] != ',' && doc1[i] != '.' && doc1[i] != '!' && doc1[i] != '?' && doc1[i] != ';' && doc1[i] != ':') {
+            if (j < 49) words1[count1][j++] = doc1[i];
+            i++;
+        }
+        words1[count1][j] = '\0';
+        if (j > 0) count1++;
     }
 
-    f1 = fopen(argv[1], "rb");
-    f2 = fopen(argv[2], "rb");
-
-    if (f1 == NULL || f2 == NULL) {
-        if (f1 != NULL) {
-            fclose(f1);
+    /* Split document 2 into words using the same loop. */
+    i = 0;
+    while (doc2[i] != '\0' && count2 < 500) {
+        while (doc2[i] == ' ' || doc2[i] == '\t' || doc2[i] == '\n' || doc2[i] == ',' || doc2[i] == '.' || doc2[i] == '!' || doc2[i] == '?' || doc2[i] == ';' || doc2[i] == ':') i++;
+        if (doc2[i] == '\0') break;
+        j = 0;
+        while (doc2[i] != '\0' && doc2[i] != ' ' && doc2[i] != '\t' && doc2[i] != '\n' && doc2[i] != ',' && doc2[i] != '.' && doc2[i] != '!' && doc2[i] != '?' && doc2[i] != ';' && doc2[i] != ':') {
+            if (j < 49) words2[count2][j++] = doc2[i];
+            i++;
         }
-        if (f2 != NULL) {
-            fclose(f2);
-        }
-        printf("Error opening input files.\n");
-        return 1;
+        words2[count2][j] = '\0';
+        if (j > 0) count2++;
     }
 
-    n1 = fread(text1, 1, sizeof(text1) - 1, f1);
-    n2 = fread(text2, 1, sizeof(text2) - 1, f2);
-    text1[n1] = '\0';
-    text2[n2] = '\0';
-
-    fclose(f1);
-    fclose(f2);
-
-    /* Split Document 1 into words using strtok(). */
-    word = strtok(text1, " \n\t\r.,!?;:()\"'");
-    while (word != NULL && total < 1000) {
-        if (strlen(word) < sizeof(words1[0])) {
-            strcpy(words1[total], word);
-            total++;
-        }
-        word = strtok(NULL, " \n\t\r.,!?;:()\"'");
-    }
-
-    /* Compare words from Document 2 with Document 1 using strcmp(). */
-    word = strtok(text2, " \n\t\r.,!?;:()\"'");
-    while (word != NULL) {
-        if (strlen(word) < 100) {
-            found = 0;
-
-            for (i = 0; i < total; i++) {
-                if (strcmp(words1[i], word) == 0) {
-                    found = 1;
-                    break;
-                }
-            }
-
-            if (found == 1) {
-                matched++;
+    /* Count each word in document 2 that also appears in document 1. */
+    for (i = 0; i < count2; i++) {
+        found = 0;
+        for (j = 0; j < count1; j++) {
+            if (strcmp(words2[i], words1[j]) == 0) {
+                found = 1;
+                break;
             }
         }
-
-        word = strtok(NULL, " \n\t\r.,!?;:()\"'");
+        if (found == 1) matched++;
     }
 
-    if (total > 0) {
-        double similarity = (matched * 100.0) / total;
-
-        /* Keep displayed percentage within 0 to 100. */
-        if (similarity > 100.0) {
-            similarity = 100.0;
-        }
-
-        printf("Similarity: %.2f%%\n", similarity);
-    } else {
-        printf("Similarity: 0.00%%\n");
-    }
-
-    printf("MATCHED=%d TOTAL=%d\n", matched, total);
+    printf("MATCHED=%d TOTAL=%d\n", matched, count2);
+    if (count2 > 0) printf("Similarity: %.2f%%\n", matched * 100.0 / count2);
+    else printf("Similarity: 0.00%%\n");
     return 0;
 }
