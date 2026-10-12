@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int main(void)
+int main()
 {
     char doc1[5001], doc2[5001];
     char words1[500][50], words2[500][50];
